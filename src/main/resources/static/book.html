@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="js/element.css">
+
+</head>
+<body>
+<div id="app" style="width: 100%; margin: 0 auto">
+
+    <h2>图书管理系统</h2>
+<!--    <el-row justify="end">-->
+<!--        <el-col :span="6" style="margin-bottom: 10px">-->
+<!--            <el-button type="primary" @click="add">新增</el-button>-->
+<!--        </el-col>-->
+<!--    </el-row>-->
+    <el-container style="height: 100%; border: 1px solid #eee">
+        <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+            <el-menu :default-openeds="['1', '3']">
+                <el-submenu index="1">
+                    <template slot="title"><i class="el-icon-message"></i>借阅管理</template>
+
+                </el-submenu>
+                <el-submenu index="2">
+                    <template slot="title"><i class="el-icon-menu"></i>图书管理</template>
+
+                </el-submenu>
+                <el-submenu index="3">
+                    <template slot="title"><i class="el-icon-setting"></i>读者管理</template>
+                </el-submenu>
+            </el-menu>
+        </el-aside>
+
+        <el-container>
+            <el-header style="text-align: right; font-size: 12px">
+                <el-dropdown>
+
+                    <i class="el-icon-setting" style="margin-right: 15px"></i>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item>查看</el-dropdown-item>
+                        <el-dropdown-item>新增</el-dropdown-item>
+                        <el-dropdown-item>删除</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+                <el-table width="200px">
+                <el-table-column
+                        align="right" width="200px">
+                    <template slot="header" slot-scope="scope">
+                        <el-input
+                                v-model="search"
+                                size="mini"
+                                placeholder="输入关键字搜索"/>
+                    </template>
+
+                </el-table-column>
+                    <el-button type="primary" plain>主要按钮</el-button>
+                    <el-row justify="end">-->
+                        <el-col :span="6" style="margin-bottom: 10px">
+                            <el-button type="primary" @click="add">新增</el-button>
+                        </el-col>
+                    </el-row>
+
+                </el-table>
+                <el-button type="primary" plain>主要按钮</el-button>
+            </el-header>
+
+            <el-main>
+                <el-table
+                        :data="tableData.filter(data => !search || data.realName.includes(search))"
+                        style="width: 100%">
+                    <el-table-column
+                            label="id"
+                            prop="id">
+<!--                            style="width: 10%">-->
+                    </el-table-column>
+                    <el-table-column
+                            label="用户名"
+                            prop="username">
+<!--                            style="width: 10%">-->
+                    </el-table-column>
+                    <el-table-column
+                            label="密码"
+                            prop="password">
+                    </el-table-column>
+                    <el-table-column
+                            label="真实姓名"
+                            prop="realName"
+                           >
+                    </el-table-column>
+                    <el-table-column
+                            label="性别"
+                            prop="sex">
+                    </el-table-column>
+                    <el-table-column
+                            label="生日"
+                            prop="birthday">
+                    </el-table-column>
+                    <el-table-column
+                            label="地址"
+                            prop="address">
+                    </el-table-column>
+                    <el-table-column
+                            label="电话"
+                            prop="tel">
+                    </el-table-column>
+                    <el-table-column
+                            label="邮箱"
+                            prop="email">
+                    </el-table-column>
+                    <el-table-column
+                            label="注册日期"
+                            prop="registerDate">
+                    </el-table-column>
+                    <el-table-column
+                            label="读者编号"
+                            prop="readerNumber">
+                    </el-table-column>
+                    <el-table-column label="操作"  style="width: 30%">
+                        <template slot-scope="scope">
+                            <div style="display: flex; justify-content: center;">
+                                <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                                <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                            </div>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="findAll"
+                        :current-page="pageNum"
+                        :page-sizes="[2, 3, 4, 5, 10]"
+                        :page-size="pageSize"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="totale"
+                        @prev-click="findAll"
+                        @next-click="findAll">
+                </el-pagination>
+            </el-main>
+        </el-container>
+    </el-container>
+<!--
+    <el-table
+            :data="tableData.filter(data => !search || data.author.includes(search))"
+            style="width: 100%">
+        <el-table-column
+                label="id"
+                prop="id"
+                style="width: 10%">
+        </el-table-column>
+        <el-table-column
+                label="用户名"
+                prop="username"
+                style="width: 10%">
+        </el-table-column>
+        <el-table-column
+                label="密码"
+                prop="password"
+                style="width: 10%">
+        </el-table-column>
+        <el-table-column
+                label="真实姓名"
+                prop="realName"
+                style="width: 10%">
+        </el-table-column>
+        <el-table-column
+                label="性别"
+                prop="sex"
+                style="width: 20%">
+        </el-table-column>
+        <el-table-column
+                label="生日"
+                prop="birthday"
+                style="width: 20%">
+        </el-table-column>
+        <el-table-column
+                label="地址"
+                prop="address"
+                style="width: 20%">
+        </el-table-column>
+        <el-table-column
+                label="电话"
+                prop="tel"
+                style="width: 20%">
+        </el-table-column>
+        <el-table-column
+                label="邮箱"
+                prop="email"
+                style="width: 20%">
+        </el-table-column>
+        <el-table-column
+                label="注册日期"
+                prop="registerDate"
+                style="width: 20%">
+        </el-table-column>
+        <el-table-column
+                label="读者编号"
+                prop="readerNumber"
+                style="width: 20%">
+        </el-table-column>
+        <el-table-column label="操作">
+            <template slot-scope="scope">
+                <el-button
+                        size="mini"
+                        @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                <el-button
+                        size="mini"
+                        type="danger"
+                        @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            </template>
+        </el-table-column>-->
+<!--        <el-table-column-->
+<!--                align="right">-->
+<!--            <template slot="header" slot-scope="scope">-->
+<!--                <el-input-->
+<!--                        v-model="search"-->
+<!--                        size="mini"-->
+<!--                        placeholder="输入关键字搜索"/>-->
+<!--            </template>-->
+
+<!--        </el-table-column>-->
+<!--    </el-table>-->
+
+
+<!--    <el-pagination-->
+<!--            @size-change="handleSizeChange"-->
+<!--            @current-change="findAll"-->
+<!--            :current-page="pageNum"-->
+<!--            :page-sizes="[2, 3, 4, 5, 10]"-->
+<!--            :page-size="pageSize"-->
+<!--            layout="total, sizes, prev, pager, next, jumper"-->
+<!--            :total="totale"-->
+<!--            @prev-click="findAll"-->
+<!--            @next-click="findAll">-->
+<!--    </el-pagination>-->
+<!--    <el-pagination-->
+<!--            layout="prev, pager, next"-->
+<!--            :current-page="pageNum"-->
+<!--            :page-size="pageSize"-->
+<!--            :total="totale"-->
+<!--            @current-change="findAll"-->
+<!--            @prev-click="findAll"-->
+<!--            @next-click="findAll">-->
+<!--    </el-pagination>-->
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="js/element.js"></script>
+<script src="js/axios-0.18.0.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            pageNum: 1,
+            pageSize: 5,
+            search: '',
+            tableData: [],
+            totale:null
+        },
+        methods: {
+            handleSizeChange(val) {
+                this.pageSize = val;
+                this.findAll();
+                this.currentPage = 1;
+            },
+            handleCurrentChange(val) {
+                this.currentPage = val;
+                console.log(`当前页: ${val}`);
+            },
+            findAll(num) {
+                this.pageNum = num;
+                var url = `reader/${this.pageNum}/${this.pageSize}`
+                axios.get(url)
+                    .then(res => {
+                        this.tableData = res.data.data.rows;
+                        this.totale=res.data.data.total;
+                    })
+                    .catch(error => {
+                        // 在这里处理可能的错误
+                        console.error("Error fetching data:", error);
+                    });
+            }
+        },
+
+        created() {
+            this.findAll(this.pageNum);
+        }
+    })
+</script>
+</body>
+</html>
