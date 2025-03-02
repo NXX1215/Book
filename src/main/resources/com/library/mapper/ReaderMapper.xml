@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.library.mapper.ReaderMapper">
+    <delete id="deleteById">
+        delete from readerinformation where id = #{id}
+    </delete>
+
+    <select id="list" resultType="com.library.pojo.Reader">
+        select * from readerinformation
+    </select>
+    <select id="listByTime" resultType="com.library.pojo.Reader">
+        select * from readerinformation
+        WHERE registerDate between #{startDate} AND #{endDate}
+    </select>
+    <insert id="Insertbook" >
+        INSERT INTO readerinformation (username,password,realName,sex,birthday,address,tel,email,registerDate,readerNumber) values(#{username},#{password},#{realName},#{sex},#{birthday},#{address},#{tel},#{email},#{registerDate},#{readerNumber})
+    </insert>
+
+    <select id="getByusernameAndPassword" resultType="com.library.pojo.Reader">
+        select * from readerinformation
+        WHERE username =#{username} and password=#{password}
+    </select>
+    <select id="selectByID" resultType="com.library.pojo.Reader">
+        select * from readerinformation where id=#{id}
+    </select>
+    <select id="selectByRealNmae" resultType="com.library.pojo.Reader">
+        SELECT * FROM readerinformation
+        WHERE realName LIKE CONCAT('%', #{realName}, '%')
+    </select>
+</mapper>

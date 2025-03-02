@@ -9,239 +9,218 @@
 <body>
 <div id="app" style="width: 100%; margin: 0 auto">
 
-    <h2>图书管理系统</h2>
-<!--    <el-row justify="end">-->
-<!--        <el-col :span="6" style="margin-bottom: 10px">-->
-<!--            <el-button type="primary" @click="add">新增</el-button>-->
-<!--        </el-col>-->
-<!--    </el-row>-->
-    <el-container style="height: 100%; border: 1px solid #eee">
-        <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-            <el-menu :default-openeds="['1', '3']">
-                <el-submenu index="1">
-                    <template slot="title"><i class="el-icon-message"></i>借阅管理</template>
 
-                </el-submenu>
-                <el-submenu index="2">
-                    <template slot="title"><i class="el-icon-menu"></i>图书管理</template>
-
-                </el-submenu>
-                <el-submenu index="3">
-                    <template slot="title"><i class="el-icon-setting"></i>读者管理</template>
-                </el-submenu>
+    <el-container >
+        <el-header style="height: 60px;width: 100%;margin-top: 0;background-color: #545c64 ">
+            <el-menu
+                    :default-active="activeIndex"
+                    class="el-menu-demo"
+                    mode="horizontal"
+                    @select="handleSelect"
+                    background-color="#545c64"
+                    text-color="#fff"
+                    active-text-color="#ffd04b">
+                <el-menu-item index="1" style="float: left">
+                    <template slot="title">图书管理</template>
+                </el-menu-item>
+                <el-menu-item index="" style="float: right" @click="logout">退出登录</el-menu-item>
+                <el-menu-item index="1" style="float: right" >你好，{{ adminName || '图书管理员' }} <!-- 如果adminName不存在，则显示'管理员' --></el-menu-item>
             </el-menu>
-        </el-aside>
+        </el-header>
+        <el-container style="height: 900px;">
+            <el-aside width="200px" height="900px" style="background-color:#545c64">
+                <el-col>
+                    <el-menu
+                            default-active="1"
+                            class="el-menu-vertical-demo"
+                            @open="handleOpen"
+                            @close="handleClose"
+                            background-color="#545c64"
+                            text-color="#fff"
+                            active-text-color="#ffd04b">
+                        <el-menu-item index="1">
+                            <i class="el-icon-guide"></i>
+                            <span slot="title"><el-link href="lend.html" target="" style="text-decoration: none;color: white;">借阅管理</el-link></span>
+                        </el-menu-item>
+                        <el-menu-item index="2">
+                            <i class="el-icon-reading"></i>
+                            <span slot="title"><el-link href="book.html" target="" style="text-decoration: none;color: white;">图书管理</el-link></span>
+                        </el-menu-item>
+                        <el-menu-item index="3">
+                            <i class="el-icon-user"></i>
+                            <span slot="title"><el-link href="reader.html" target="" style="text-decoration: none;color: white;">读者管理</el-link></span>
+                        </el-menu-item>
+                        <el-menu-item index="4">
+                            <i class="el-icon-document"></i>
+                            <span slot="title"><el-link href="notice.html" target="" style="text-decoration: none;color: white;">公告管理</el-link></span>
+                        </el-menu-item>
+                        <el-menu-item index="5">
+                            <i class="el-icon-s-custom"></i>
+                            <span slot="title"><el-link href="Admin.html" target="" style="text-decoration: none;color: white;">管理员管理</el-link></span>
+                        </el-menu-item>
+                    </el-menu>
+                </el-col>
+            </el-aside>
 
-        <el-container>
-            <el-header style="text-align: right; font-size: 12px">
-                <el-dropdown>
-
-                    <i class="el-icon-setting" style="margin-right: 15px"></i>
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>查看</el-dropdown-item>
-                        <el-dropdown-item>新增</el-dropdown-item>
-                        <el-dropdown-item>删除</el-dropdown-item>
-                    </el-dropdown-menu>
-                </el-dropdown>
-                <el-table width="200px">
-                <el-table-column
-                        align="right" width="200px">
-                    <template slot="header" slot-scope="scope">
-                        <el-input
-                                v-model="search"
-                                size="mini"
-                                placeholder="输入关键字搜索"/>
-                    </template>
-
-                </el-table-column>
-                    <el-button type="primary" plain>主要按钮</el-button>
-                    <el-row justify="end">-->
-                        <el-col :span="6" style="margin-bottom: 10px">
-                            <el-button type="primary" @click="add">新增</el-button>
+            <el-container>
+                <el-header style="text-align:left; font-size: 12px">
+                    <br>
+                    <div class="block"  style="display: flex; justify-content: space-between;">
+                        <div style="margin-left: 10px;">
+                            <span class="demonstration">书名查询</span>
+                            <el-input v-model="inputBookName" placeholder="请输入书名"  style="width: 160px;height:10px "></el-input>
+                            <el-button type="warning" size="medium" @click="selectByName">查询</el-button>
+                        </div>
+                        <el-col :span="6"  style="margin-bottom: 10px; float: right;">
+                            <el-button type="success" size="medium" @click="showDialog">新增</el-button>
                         </el-col>
-                    </el-row>
+                        <el-dialog :visible.sync="dialogVisible" title="创建图书信息" :close-on-click-modal="false" >
+                            <el-form :model="book" label-width="80px" size="tiny">
+                                <el-form-item label="书名">
+                                    <el-input v-model="book.name"></el-input>
+                                </el-form-item>
+                                <el-form-item label="作者">
+                                    <el-input v-model="book.author" show-author></el-input>
+                                </el-form-item>
+                                <el-form-item label="出版商">
+                                    <el-input v-model="book.publish"></el-input>
+                                </el-form-item>
+                                <el-form-item label="国际图书标准">
+                                    <el-input placeholder="请输入数字" v-model="book.isbn"></el-input>
+                                </el-form-item>
+                                <el-form-item label="简介">
+                                    <el-input v-model="book.introduction"></el-input>
+                                </el-form-item>
+                                <el-form-item label="语言">
+                                    <el-input v-model="book.language"></el-input>
+                                </el-form-item>
+                                <el-form-item label="价格">
+                                    <el-input placeholder="请输入数字" v-model="book.price"></el-input>
+                                </el-form-item>
+                                <el-form-item label="出版日期">
+                                    <el-input placeholder="请输入1999-01-01格式" v-model="book.publish_date"></el-input>
+                                </el-form-item>
+                                <el-form-item label="状态">
+                                    <el-input placeholder="请输入0或1（0未借出 1已借出）" v-model="book.status"></el-input>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="Insert()">立即创建</el-button>
+                                    <el-button @click="dialogVisible = false">取消</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </el-dialog>
 
-                </el-table>
-                <el-button type="primary" plain>主要按钮</el-button>
-            </el-header>
+                    </div>
 
-            <el-main>
-                <el-table
-                        :data="tableData.filter(data => !search || data.realName.includes(search))"
-                        style="width: 100%">
-                    <el-table-column
-                            label="id"
-                            prop="id">
-<!--                            style="width: 10%">-->
-                    </el-table-column>
-                    <el-table-column
-                            label="用户名"
-                            prop="username">
-<!--                            style="width: 10%">-->
-                    </el-table-column>
-                    <el-table-column
-                            label="密码"
-                            prop="password">
-                    </el-table-column>
-                    <el-table-column
-                            label="真实姓名"
-                            prop="realName"
-                           >
-                    </el-table-column>
-                    <el-table-column
-                            label="性别"
-                            prop="sex">
-                    </el-table-column>
-                    <el-table-column
-                            label="生日"
-                            prop="birthday">
-                    </el-table-column>
-                    <el-table-column
-                            label="地址"
-                            prop="address">
-                    </el-table-column>
-                    <el-table-column
-                            label="电话"
-                            prop="tel">
-                    </el-table-column>
-                    <el-table-column
-                            label="邮箱"
-                            prop="email">
-                    </el-table-column>
-                    <el-table-column
-                            label="注册日期"
-                            prop="registerDate">
-                    </el-table-column>
-                    <el-table-column
-                            label="读者编号"
-                            prop="readerNumber">
-                    </el-table-column>
-                    <el-table-column label="操作"  style="width: 30%">
-                        <template slot-scope="scope">
-                            <div style="display: flex; justify-content: center;">
-                                <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                                <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                            </div>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <el-pagination
-                        @size-change="handleSizeChange"
-                        @current-change="findAll"
-                        :current-page="pageNum"
-                        :page-sizes="[2, 3, 4, 5, 10]"
-                        :page-size="pageSize"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        :total="totale"
-                        @prev-click="findAll"
-                        @next-click="findAll">
-                </el-pagination>
-            </el-main>
+                </el-header>
+                <el-main>
+                    <el-table
+                            :data="tableData.filter(data => !search || data.realName.includes(search))"
+                            style="width: 100%">
+                        <el-table-column
+                                label="id"
+                                prop="id">
+                        </el-table-column>
+                        <el-table-column
+                                label="书名"
+                                prop="name">
+                        </el-table-column>
+                        <el-table-column
+                                label="作者"
+                                prop="author">
+                        </el-table-column>
+                        <el-table-column
+                                label="出版商"
+                                prop="publish">
+                        </el-table-column>
+                        <el-table-column
+                                label="国际标准书号"
+                                prop="isbn">
+                        </el-table-column>
+                        <el-table-column
+                                label="简介"
+                                prop="introduction">
+                        </el-table-column>
+                        <el-table-column
+                                label="语言"
+                                prop="language">
+                        </el-table-column>
+                        <el-table-column
+                                label="价格"
+                                prop="price">
+                        </el-table-column>
+                        <el-table-column
+                                label="出版日期"
+                                prop="publish_date">
+                        </el-table-column>
+                        <el-table-column
+                                label="状态"
+                                prop="status"
+                                :formatter="formatStatus">
+                        </el-table-column>
+                        <el-table-column label="操作"  style="width: 30%">
+                            <template slot-scope="scope">
+                                <div style="display: flex; justify-content: center;" >
+                                    <el-col :span="6" style="display: flex; justify-content: center; margin-bottom: 10px;">
+                                        <el-button size="mini"  @click="selectById(scope.row)">编辑</el-button>
+                                        <el-dialog  :visible.sync="dialogVisible1" title="修改图书信息" :close-on-click-modal="false" v-for="book in book":key="book.id" >
+                                            <el-form :model="book" label-width="80px" size="tiny">
+                                                <el-form-item label="书名">
+                                                    <el-input v-model="book.name"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="作者">
+                                                    <el-input  v-model="book.author" show-author></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="出版商">
+                                                    <el-input v-model="book.publish"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="国际图书标准">
+                                                    <el-input placeholder="请输入数字" v-model="book.isbn"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="简介">
+                                                    <el-input v-model="book.introduction"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="语言">
+                                                    <el-input v-model="book.language"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="价格">
+                                                    <el-input placeholder="请输入数字" v-model="book.price"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="出版日期">
+                                                    <el-input placeholder="请输入1999-01-01格式" v-model="book.publish_date"></el-input>
+                                                </el-form-item>
+                                                <el-form-item label="状态">
+                                                    <el-input placeholder="请输入0或1（0未借出 1已借出）"v-model="book.status"></el-input>
+                                                </el-form-item>
+                                                <el-form-item>
+                                                    <el-button type="primary" @click="updateByID(book.id)">立即修改</el-button>
+                                                    <el-button @click="dialogVisible1 = false">取消</el-button>
+                                                </el-form-item>
+                                            </el-form>
+                                        </el-dialog>
+                                        <el-button size="mini" type="danger" @click="confirmDelete(scope.$index, scope.row)">删除</el-button>
+                                    </el-col>
+
+                                </div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <el-pagination
+                            @size-change="handleSizeChange"
+                            @current-change="findAll"
+                            :current-page="pageNum"
+                            :page-sizes="[2, 3, 4, 5, 10]"
+                            :page-size="pageSize"
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="total"
+                            @prev-click="findAll"
+                            @next-click="findAll">
+                    </el-pagination>
+                </el-main>
+            </el-container>
         </el-container>
     </el-container>
-<!--
-    <el-table
-            :data="tableData.filter(data => !search || data.author.includes(search))"
-            style="width: 100%">
-        <el-table-column
-                label="id"
-                prop="id"
-                style="width: 10%">
-        </el-table-column>
-        <el-table-column
-                label="用户名"
-                prop="username"
-                style="width: 10%">
-        </el-table-column>
-        <el-table-column
-                label="密码"
-                prop="password"
-                style="width: 10%">
-        </el-table-column>
-        <el-table-column
-                label="真实姓名"
-                prop="realName"
-                style="width: 10%">
-        </el-table-column>
-        <el-table-column
-                label="性别"
-                prop="sex"
-                style="width: 20%">
-        </el-table-column>
-        <el-table-column
-                label="生日"
-                prop="birthday"
-                style="width: 20%">
-        </el-table-column>
-        <el-table-column
-                label="地址"
-                prop="address"
-                style="width: 20%">
-        </el-table-column>
-        <el-table-column
-                label="电话"
-                prop="tel"
-                style="width: 20%">
-        </el-table-column>
-        <el-table-column
-                label="邮箱"
-                prop="email"
-                style="width: 20%">
-        </el-table-column>
-        <el-table-column
-                label="注册日期"
-                prop="registerDate"
-                style="width: 20%">
-        </el-table-column>
-        <el-table-column
-                label="读者编号"
-                prop="readerNumber"
-                style="width: 20%">
-        </el-table-column>
-        <el-table-column label="操作">
-            <template slot-scope="scope">
-                <el-button
-                        size="mini"
-                        @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                <el-button
-                        size="mini"
-                        type="danger"
-                        @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-            </template>
-        </el-table-column>-->
-<!--        <el-table-column-->
-<!--                align="right">-->
-<!--            <template slot="header" slot-scope="scope">-->
-<!--                <el-input-->
-<!--                        v-model="search"-->
-<!--                        size="mini"-->
-<!--                        placeholder="输入关键字搜索"/>-->
-<!--            </template>-->
 
-<!--        </el-table-column>-->
-<!--    </el-table>-->
-
-
-<!--    <el-pagination-->
-<!--            @size-change="handleSizeChange"-->
-<!--            @current-change="findAll"-->
-<!--            :current-page="pageNum"-->
-<!--            :page-sizes="[2, 3, 4, 5, 10]"-->
-<!--            :page-size="pageSize"-->
-<!--            layout="total, sizes, prev, pager, next, jumper"-->
-<!--            :total="totale"-->
-<!--            @prev-click="findAll"-->
-<!--            @next-click="findAll">-->
-<!--    </el-pagination>-->
-<!--    <el-pagination-->
-<!--            layout="prev, pager, next"-->
-<!--            :current-page="pageNum"-->
-<!--            :page-size="pageSize"-->
-<!--            :total="totale"-->
-<!--            @current-change="findAll"-->
-<!--            @prev-click="findAll"-->
-<!--            @next-click="findAll">-->
-<!--    </el-pagination>-->
 </div>
 
 <script src="js/jquery.min.js"></script>
@@ -250,16 +229,115 @@
 <script src="js/element.js"></script>
 <script src="js/axios-0.18.0.js"></script>
 <script>
+
     new Vue({
         el: '#app',
-        data: {
-            pageNum: 1,
-            pageSize: 5,
-            search: '',
-            tableData: [],
-            totale:null
+        data() {
+            return {
+                pageNum: 1,
+                pageSize: 10,
+                tableData: [],
+                total: 0,
+                activeIndex: '1',
+                inputBookName:'',
+                search:'',
+                dialogVisible: false,
+                book: {
+                    name: '',
+                    author: '',
+                    publish: '',
+                    isbn: '',
+                    introduction: '',
+                    language: '',
+                    price: '',
+                    publish_date: '',
+                    status: '',
+                },
+                dialogVisible1: false,
+                token: localStorage.getItem("token") || "",
+                adminName: localStorage.getItem('adminName') || '' ,// 从localStorage中读取adminName
+            };
         },
         methods: {
+            logout() {
+                var url = '/logout';
+
+                axios.post(url, {
+                    headers: {
+                        'token': `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                    .then(response => {
+                        // 清除本地存储的令牌和管理员姓名
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('adminName');
+                        console.log('Logout successful');
+                        // 跳转到登录页面
+                        alert('退出成功！');
+                        location.href = 'login.html';
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        alert('退出失败，请重试');
+                    });
+            },
+            updateByID(id) {
+                let url = `bookput/${id}`
+                console.log(this.book.data);
+                console.log(this.book);
+                axios.put(url, this.book.data).then(res => {
+                    if (res.data.code === 1) {
+                        console.log(this.book);
+                        location.href = 'book.html'
+                    } else {
+                        alert(res.data.message)
+                    }
+                }).catch(err => {
+                    console.error(err)
+                })
+            },
+            showDialog() {
+                this.dialogVisible = true;
+            },
+            showDialog1() {
+                this.dialogVisible1 = true;
+            },
+            selectById(row) {
+                this.showDialog1();
+                // 获取数据并绑定到页面元素上
+                let url = `book/${row.id}`
+                axios.get(url).then(response => {
+                    this.book = response.data;  // 将返回的 JSON 数据直接赋给 this.book
+                }).catch(error => {
+                    // 处理请求失败
+                    console.error('请求数据失败：', error);
+                });
+            },
+            Insert() {
+                var url = 'book';
+                axios.post(url, this.book)
+                        .then(res => {
+                            var baseResult = res.data;
+                            if (baseResult.code === 1) {
+                                location.href = 'book.html';
+                            } else {
+                                alert(baseResult.message);
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        })
+            },
+            selectByName(){
+                let url= `book1/${this.inputBookName}`
+                axios.get(url) .then(res => {
+                    this.tableData = res.data.data;
+                    console.log(this.tableData);
+                })
+                    .catch(error => {
+                        console.error("Error fetching data:", error);
+                    });
+            },
             handleSizeChange(val) {
                 this.pageSize = val;
                 this.findAll();
@@ -269,21 +347,84 @@
                 this.currentPage = val;
                 console.log(`当前页: ${val}`);
             },
+            handleDelete(index, row) {
+                axios.delete(`book/${row.id}`)
+                    .then(res => {
+                        // 删除成功的处理逻辑
+                        this.tableData.splice(index, 1); // 从表格中删除对应数据
+                    })
+                    .catch(error => {
+                        // 处理删除失败的逻辑
+                        console.error("Error deleting data:", error);
+                    });
+            },
+            confirmDelete(index, row) {
+                this.$confirm('确认删除此行数据?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    // 确认删除逻辑
+                    this.handleDelete(index, row);
+                }).catch(() => {
+                    // 取消删除逻辑
+                });
+            },
+            formatStatus(row, column, cellValue) {
+                // cellValue 是当前单元格的值，即 row[column.prop]
+                return cellValue === 1 ? '已借出' : '未借出';
+            },
+            confirmUpdate(row) {
+                this.$confirm('确认修改该用户数据吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    // 确认删除逻辑
+                    this.updateByID(row);
+                }).catch(() => {
+                    // 取消删除逻辑
+                });
+            },
             findAll(num) {
-                this.pageNum = num;
-                var url = `reader/${this.pageNum}/${this.pageSize}`
-                axios.get(url)
+                if(num==0){
+                    this.pageNum =1;
+                }else
+                {this.pageNum = num;}
+                var url = `book/${this.pageNum}/${this.pageSize}`
+                axios.get(url,{
+                        headers:{
+                            'token':this.token
+                        }
+                })
                     .then(res => {
                         this.tableData = res.data.data.rows;
-                        this.totale=res.data.data.total;
+                        this.total=res.data.data.total;
                     })
                     .catch(error => {
                         // 在这里处理可能的错误
                         console.error("Error fetching data:", error);
+                    })
+                    .catch(error => {
+                        if (error.response) {
+                            const { status } = error.response;
+
+                            // 检查返回的状态码来确定是否未登录
+                            if (status === 401) {
+                                // 未登录，重定向到登录页面
+                                alert('请先登录');
+                                location.href = 'login.html';
+                            } else {
+                                // 处理其他错误情况
+                                console.error('Error:', error.response);
+                            }
+                        } else {
+                            // 打印网络错误
+                            console.error('Network Error:', error);
+                        }
                     });
             }
         },
-
         created() {
             this.findAll(this.pageNum);
         }
